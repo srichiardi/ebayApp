@@ -5,7 +5,7 @@ from urllib import urlencode
 
 # items details retrieval
 ebayShoppingUrl = "http://open.api.ebay.com/shopping?"
-esPayload = { 'appid' : 'StefanoR-ebayFric-PRD-19f17700d-ff298548',
+esPayload = { 'appid' : '',
         'callname' : 'GetMultipleItems',
         'version' : '975',
         'responseencoding' : 'JSON',
@@ -15,11 +15,14 @@ esPayload = { 'appid' : 'StefanoR-ebayFric-PRD-19f17700d-ff298548',
 
 
 def getItemsFromSeller(sellerId, resultsPerPage=100):
-    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.13.0&SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&"
+    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.13.0&SECURITY-APPNAME=%s&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&"
     efPayload = { 'itemFilter(0).name' : 'Seller',
                  'itemFilter(0).value' : sellerId,
                  'paginationInput.entriesPerPage' : resultsPerPage,
                  'paginationInput.pageNumber' : 1 }
+    
+    appid = ''
+    ebayFindinghUrl = ebayFindinghUrl % appid
     
     url = ebayFindinghUrl + urlencode(efPayload)
     r = requests.get(url)
