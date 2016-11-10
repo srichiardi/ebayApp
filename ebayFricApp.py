@@ -7,9 +7,10 @@ from urllib import urlencode
 def getItemsFromSeller(sellerId, totResults=10):
     ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.13.0&SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&"
     efPayload = { 'itemFilter(0).name' : 'Seller',
-                 'itemFilter(0).value' : sellerId,
-                 'paginationInput.entriesPerPage' : 100,
-                 'paginationInput.pageNumber' : 1 }
+                  'itemFilter(0).value' : sellerId,
+                  'SoldItemsOnly' : 'true',
+                  'paginationInput.entriesPerPage' : 100,
+                  'paginationInput.pageNumber' : 1 }
     
     
     url = ebayFindinghUrl + urlencode(efPayload)
@@ -60,6 +61,7 @@ def getNrOfSold(listOfItems):
     for item in j['Item']:
         itemDict = {}
         itemDict["Item_id"] = item["ItemID"]
+        itemDict["ListingStatus"] = item["ListingStatus"]
         itemDict["Location"] = item["Location"]
         itemDict["Price"] = item["CurrentPrice"]["Value"]
         itemDict["Currency"] = item["CurrentPrice"]["CurrencyID"]
@@ -81,3 +83,6 @@ def writeItemsToCsv(itemsList):
     for item in itemsList:
         csvWriter.writerow(item)
     fileToWrite.close()
+
+
+# aggiungere SoldItemsOnly nella ricerca e status active/inactive in output + parole chiave
