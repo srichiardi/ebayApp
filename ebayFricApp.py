@@ -1,3 +1,5 @@
+import os
+import csv
 import requests
 import json
 from urllib import urlencode
@@ -69,3 +71,13 @@ def getNrOfSold(listOfItems):
     return itemsList
 
 
+def writeItemsToCsv(itemsList):
+    filePath = os.getcwd() + "\\AppResults.csv"
+    fileToWrite = open(filePath, 'ab')
+    fieldnames = itemsList[0].keys()
+    csvWriter = csv.DictWriter(fileToWrite, fieldnames, restval='',
+                               extrasaction='ignore', dialect='excel')
+    csvWriter.writeheader()
+    for item in itemsList:
+        csvWriter.writerow(item)
+    fileToWrite.close()
