@@ -35,7 +35,6 @@ def getItemsFromSeller(sellerId, resultsPerPage=100):
                 
     return itemsList
 
-
 def getNrOfSold(listOfItems):
     ebayShoppingUrl = "http://open.api.ebay.com/shopping?"
     esPayload = { 'appid' : 'StefanoR-ebayFric-PRD-19f17700d-ff298548',
@@ -60,5 +59,4 @@ def getNrOfSold(listOfItems):
         itemDict["Seller_id"] = item["Seller"]["UserID"]
         itemsList.append(itemDict)
     return itemsList
-
 
