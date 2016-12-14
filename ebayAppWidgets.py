@@ -64,7 +64,7 @@ class appDlg(Tk):
     
     def close(self):
         for level in self.frames:
-            if level['input'] == 'entry':
+            if level['input'] == 'entry' and level['wdgt'].get() != '':
                 self.optionsDict[level['appOpt']] = level['wdgt'].get()
             elif level['input'] == 'option':
                 if level['var'].get() == 1:

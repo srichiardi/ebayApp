@@ -38,6 +38,7 @@ def getItemsFromSeller(searchOptions):
     pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
     itemsList = []
 
+    print "Found %d items. Starting collection..." % totResults
     
     if 'item' in j['findItemsAdvancedResponse'][0]['searchResult'][0].keys():
         for item in j['findItemsAdvancedResponse'][0]['searchResult'][0]['item']:
@@ -102,9 +103,11 @@ def writeItemsToCsv(outputPath, itemsList):
 
 
 def main():
+    print "Claudio sei un FRICO!!!"
     options = appDlg().mainloop()
-    if options['sellerId'] == '':
+    if 'sellerId' not in options.keys():
         print "missing seller ID!"
+        time.sleep(3)
         sys.exit()
     else:
         itemsList = getItemsFromSeller(options)
@@ -113,4 +116,9 @@ def main():
             writeItemsToCsv(options['outputFolder'], itemsDesc)
         else:
             print "no items found"
+            time.sleep(3)
 
+
+if __name__ == "__main__":
+    main()
+    
