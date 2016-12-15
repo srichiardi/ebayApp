@@ -28,7 +28,13 @@ def getItemsFromSeller(searchOptions):
     if 'keywords' in searchOptions.keys():
         efPayload['keywords'] = searchOptions['keywords']
         
-    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.13.0&SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&"
+    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?\
+    OPERATION-NAME=findItemsAdvanced&\
+    SERVICE-VERSION=1.13.0&\
+    GLOBAL-ID=EBAY-US&\
+    SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&\
+    RESPONSE-DATA-FORMAT=JSON&\
+    REST-PAYLOAD&"
     
     url = ebayFindinghUrl + urlencode(efPayload)
     r = requests.get(url)
@@ -69,7 +75,9 @@ def getNrOfSold(listOfItems):
                 'version' : '975',
                 'responseencoding' : 'JSON',
                 'ItemID' : asciiItemsStr,
-                'IncludeSelector' : 'Details'}
+                'IncludeSelector' : 'Details',
+                'siteid' : '0' }
+        
         url = ebayShoppingUrl + urlencode(esPayload)
         r = requests.get(url)
         j = json.loads(r.text)
@@ -122,3 +130,18 @@ def main():
 if __name__ == "__main__":
     main()
     
+##### TO DO #####
+'''
+Add Items Ended
+Map siteIDs to GlobalIDs in seller search and item search calls
+Add searches in Global eBay sites
+Add link to the listing
+Add picturesURL to output
+'''
+
+##### REFERENCES #####
+'''
+http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
+http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
+http://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html
+'''
