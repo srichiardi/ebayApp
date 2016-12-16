@@ -137,6 +137,7 @@ Map siteIDs to GlobalIDs in seller search and item search calls
 Add searches in Global eBay sites
 Add link to the listing
 Add picturesURL to output
+Add item location to output
 '''
 
 ##### REFERENCES #####
