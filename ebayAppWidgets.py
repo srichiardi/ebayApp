@@ -1,6 +1,7 @@
 import os
 from Tkinter import *
 import Tkinter, tkFileDialog
+from eBayGlobalMap import globalSiteMap
 
 
 ##-------------------------------------------------------------##
@@ -12,7 +13,7 @@ class appDlg(Tk):
     def __init__(self):
         Tk.__init__(self)
         self.title("eBay App Search")
-        self.geometry("410x235")
+        self.geometry("410x375")
         rootDir = os.path.split(__file__)[0]
         self.optionsDict = { 'outputFolder' : rootDir }
         
@@ -35,9 +36,14 @@ class appDlg(Tk):
                           'input' : 'browse',
                           'appOpt' : 'outputPath' }
                         ]
-
+        
+        siteOptFrame = Frame(self)
+        
+        searchOptFrame = Frame(self)
+        searchOptFrame.pack(side=RIGHT,padx=5)
+        
         for level in self.frames:
-            frame = Frame(self)
+            frame = Frame(searchOptFrame)
             frame.pack(pady=5,side=TOP,fill=X)
             label = Label(frame,text=level['label'])
             if level['input'] == 'entry':
