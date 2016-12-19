@@ -15,9 +15,10 @@ class appDlg(Tk):
         self.title("eBay App Search")
         self.geometry("410x375")
         rootDir = os.path.split(__file__)[0]
-        self.optionsDict = { 'outputFolder' : rootDir }
+        self.optionsDict = { 'outputFolder' : rootDir,
+                            'sites' : [] }
         
-        self.frames = [{ 'label' : 'Seller ID',
+        self.wdgts = [{ 'label' : 'Seller ID',
                          'input' : 'entry',
                          'appOpt' : 'sellerId' },
                         { 'label' : 'Results per page',
@@ -37,12 +38,20 @@ class appDlg(Tk):
                           'appOpt' : 'outputPath' }
                         ]
         
-        siteOptFrame = Frame(self)
+        OptMainFrame = Frame(self)
+        OptMainFrame.pack(side=TOP,padx=5)
         
-        searchOptFrame = Frame(self)
+        BtnFrame = Frame(self)
+        BtnFrame.pack(side=TOP, padx=5)
+        btnRun = Button(BtnFrame, text="Run", command=self.close)
+        btnRun.pack(side=RIGHT,padx=5)
+                
+        searchOptFrame = Frame(OptMainFrame)
         searchOptFrame.pack(side=RIGHT,padx=5)
+        searchOptLbl = Label(searchOptFrame, text = "Search options:")
+        searchOptLbl.pack(side=TOP, padx=5)
         
-        for level in self.frames:
+        for level in self.wdgts:
             frame = Frame(searchOptFrame)
             frame.pack(pady=5,side=TOP,fill=X)
             label = Label(frame,text=level['label'])
@@ -58,10 +67,34 @@ class appDlg(Tk):
             label.pack(side=RIGHT,padx=5)
             level['wdgt'] = wdgt
 
-        self.bottomFrame = Frame(self)
-        self.bottomFrame.pack(pady=5,side=TOP,fill=X)
-        self.btnRun = Button(self.bottomFrame, text="Run", command=self.close)
-        self.btnRun.pack(side=RIGHT,padx=5)
+        siteOptFrame = Frame(OptMainFrame)
+        siteOptFrame.pack(side=RIGHT, padx=5)
+        siteOptLbl = Label(siteOptFrame, text = "eBay sites:")
+        siteOptLbl.pack(side=TOP, padx=5)
+        
+        siteOptCont = Frame(siteOptFrame)
+        siteOptCont.pack(side=TOP, padx=5)
+        
+        optsPerCol = 11
+        optionsList = globalSiteMap.keys()
+        optionsList.sort()
+        optionsMatrix = [optionsList[i:i+optsPerCol] for i in range(0,len(optionsList),optsPerCol)]
+        self.siteOpts = []
+        
+        for col in optionsMatrix:
+            colFrame = Frame(siteOptCont)
+            colFrame.pack(side=LEFT, padx=5)
+            for opt in col:
+                frame = Frame(colFrame)
+                frame.pack(side=TOP, padx=5)
+                label = Label(frame, text=globalSiteMap[opt]['name'])
+                var = StringVar()
+                wdgt = Checkbutton(frame, variable=var, 
+                                   onvalue=globalSiteMap[opt]['globalID'],
+                                   offvalue=None)
+                wdgt.pack(side=RIGHT, padx=5)
+                label.pack(side=RIGHT, padx=5)
+                self.siteOpts.append(var)
         
 
     def outputDir(self):
@@ -69,7 +102,7 @@ class appDlg(Tk):
 
     
     def close(self):
-        for level in self.frames:
+        for level in self.wdgts:
             if level['input'] == 'entry' and level['wdgt'].get() != '':
                 self.optionsDict[level['appOpt']] = level['wdgt'].get()
             elif level['input'] == 'option':
@@ -77,6 +110,10 @@ class appDlg(Tk):
                     self.optionsDict[level['appOpt']] = True
                 else:
                     self.optionsDict[level['appOpt']] = False
+                    
+        for var in self.siteOpts:
+            if var.get() != None:
+                self.optionsDict['sites'].append(var.get())
         self.destroy()
 
 
