@@ -13,7 +13,7 @@ class appDlg(Tk):
     def __init__(self):
         Tk.__init__(self)
         self.title("eBay App Search")
-        self.geometry("410x375")
+        self.geometry("750x375")
         rootDir = os.path.split(__file__)[0]
         self.optionsDict = { 'outputFolder' : rootDir,
                             'sites' : [] }
@@ -44,7 +44,7 @@ class appDlg(Tk):
         BtnFrame = Frame(self)
         BtnFrame.pack(side=TOP, padx=5)
         btnRun = Button(BtnFrame, text="Run", command=self.close)
-        btnRun.pack(side=RIGHT,padx=5)
+        btnRun.pack(side=RIGHT,padx=5, fill=X)
                 
         searchOptFrame = Frame(OptMainFrame)
         searchOptFrame.pack(side=RIGHT,padx=5)
@@ -86,11 +86,11 @@ class appDlg(Tk):
             colFrame.pack(side=LEFT, padx=5)
             for opt in col:
                 frame = Frame(colFrame)
-                frame.pack(side=TOP, padx=5)
+                frame.pack(side=TOP, padx=5, fill=X)
                 label = Label(frame, text=globalSiteMap[opt]['name'])
                 var = StringVar()
                 wdgt = Checkbutton(frame, variable=var, 
-                                   onvalue=globalSiteMap[opt]['globalID'],
+                                   onvalue=opt,
                                    offvalue=None)
                 wdgt.pack(side=RIGHT, padx=5)
                 label.pack(side=RIGHT, padx=5)
