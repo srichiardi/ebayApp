@@ -31,31 +31,26 @@ def getItemsFromSeller(searchOptions):
     RESPONSE-DATA-FORMAT=JSON&\
     REST-PAYLOAD&"
     
-    url = ebayFindinghUrl + urlencode(efPayload)
-    r = requests.get(url)
-    j = json.loads(r.text)
+    itemsDict = {}
     
-    totResults = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0])
-    totPages = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalPages'][0])
-    pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
-    itemsList = []
-
-    print "Found %d items. Starting collection..." % totResults
-    
-    if 'item' in j['findItemsAdvancedResponse'][0]['searchResult'][0].keys():
-        for item in j['findItemsAdvancedResponse'][0]['searchResult'][0]['item']:
-            itemsList.append(item['itemId'][0])
-            
-        while len(itemsList) < totResults:
-            efPayload['paginationInput.pageNumber'] += 1
+    for site in searchOptions['sites']:
+        ebayFindinghUrl += globalSiteMap[site]['globalID'] + "&"
+        while True:
             url = ebayFindinghUrl + urlencode(efPayload)
             r = requests.get(url)
             j = json.loads(r.text)
+            totPages = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalPages'][0])
+            pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
+            totResults = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0])
+            if totResults == 0: break
             for item in j['findItemsAdvancedResponse'][0]['searchResult'][0]['item']:
-                itemsList.append(item['itemId'][0])
-            print "retieved %d item ids" % len(itemsList)
-                
-    return itemsList
+                if item['itemId'][0] in itemsDict.keys():
+                    itemsDict[ item['itemId'][0] ]['globalID'].append(item['globalId'][0])
+                else:
+                    itemsDict[ item['itemId'][0] ] = { 'globalID' : item['globalId'][0] }
+            
+            
+    return itemsDict
 
 
 def getNrOfSold(listOfItems):
@@ -133,7 +128,6 @@ Map siteIDs to GlobalIDs in seller search and item search calls
 Add searches in Global eBay sites
 Add link to the listing
 Add picturesURL to output
-Add item location to output
 '''
 
 ##### REFERENCES #####

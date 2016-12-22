@@ -42,9 +42,9 @@ class appDlg(Tk):
         OptMainFrame.pack(side=TOP,padx=5)
         
         BtnFrame = Frame(self)
-        BtnFrame.pack(side=TOP, padx=5)
-        btnRun = Button(BtnFrame, text="Run", command=self.close)
-        btnRun.pack(side=RIGHT,padx=5, fill=X)
+        BtnFrame.pack(side=TOP, padx=5, fill=X)
+        btnRun = Button(BtnFrame, text="Run", width=6, command=self.close)
+        btnRun.pack(side=RIGHT,padx=10)
                 
         searchOptFrame = Frame(OptMainFrame)
         searchOptFrame.pack(side=RIGHT,padx=5)
@@ -79,7 +79,7 @@ class appDlg(Tk):
         optionsList = globalSiteMap.keys()
         optionsList.sort()
         optionsMatrix = [optionsList[i:i+optsPerCol] for i in range(0,len(optionsList),optsPerCol)]
-        self.siteOpts = []
+        self.siteOpts = {}
         
         for col in optionsMatrix:
             colFrame = Frame(siteOptCont)
@@ -90,15 +90,42 @@ class appDlg(Tk):
                 label = Label(frame, text=globalSiteMap[opt]['name'])
                 var = StringVar()
                 wdgt = Checkbutton(frame, variable=var, 
-                                   onvalue=opt,
-                                   offvalue=None)
+                                   onvalue=opt)
                 wdgt.pack(side=RIGHT, padx=5)
                 label.pack(side=RIGHT, padx=5)
-                self.siteOpts.append(var)
+                self.siteOpts[opt] = { 'var' : var, 'wdgt' : wdgt }
+                
+        selectFrame = Frame(siteOptFrame)
+        selectFrame.pack(side=TOP, padx=5, fill=X)
+        selAllBtn = Button(selectFrame, text="Select all", command=self.selAll)
+        selAllBtn.pack(side=RIGHT, padx=5)
+        deSelBtn = Button(selectFrame, text="Clear all", command=self.selNone)
+        deSelBtn.pack(side=RIGHT, padx=5)
+        euSelBtn = Button(selectFrame, text="EU only", command=self.selEU)
+        euSelBtn.pack(side=RIGHT, padx=5)
         
 
     def outputDir(self):
         self.optionsDict['outputFolder'] = tkFileDialog.askdirectory()
+        
+        
+    def selAll(self):
+        for opt in self.siteOpts.keys():
+            self.siteOpts[opt]['wdgt'].select()
+    
+    
+    def selNone(self):
+        for opt in self.siteOpts.keys():
+            self.siteOpts[opt]['wdgt'].deselect()
+            
+            
+    def selEU(self):
+        for opt in self.siteOpts.keys():
+            if opt in ['FR', 'DE', 'NL', 'PL', 'CH', 'IT', 'AT', 'IE', 'ES', 
+                       'BE-FR', 'BE-NL', 'GB']:
+                self.siteOpts[opt]['wdgt'].select()
+            else:
+                self.siteOpts[opt]['wdgt'].deselect()
 
     
     def close(self):
@@ -111,9 +138,9 @@ class appDlg(Tk):
                 else:
                     self.optionsDict[level['appOpt']] = False
                     
-        for var in self.siteOpts:
-            if var.get() != None:
-                self.optionsDict['sites'].append(var.get())
+        for opt in self.siteOpts.keys():
+            if self.siteOpts[opt]['var'].get() != '0':
+                self.optionsDict['sites'].append(self.siteOpts[opt]['var'].get())
         self.destroy()
 
 
