@@ -1,6 +1,7 @@
 import os
 from Tkinter import *
 import Tkinter, tkFileDialog
+from eBayGlobalMap import globalSiteMap
 
 
 ##-------------------------------------------------------------##
@@ -12,11 +13,12 @@ class appDlg(Tk):
     def __init__(self):
         Tk.__init__(self)
         self.title("eBay App Search")
-        self.geometry("410x235")
+        self.geometry("750x375")
         rootDir = os.path.split(__file__)[0]
-        self.optionsDict = { 'outputFolder' : rootDir }
+        self.optionsDict = { 'outputFolder' : rootDir,
+                            'sites' : [] }
         
-        self.frames = [{ 'label' : 'Seller ID',
+        self.wdgts = [{ 'label' : 'Seller ID',
                          'input' : 'entry',
                          'appOpt' : 'sellerId' },
                         { 'label' : 'Results per page',
@@ -35,9 +37,22 @@ class appDlg(Tk):
                           'input' : 'browse',
                           'appOpt' : 'outputPath' }
                         ]
-
-        for level in self.frames:
-            frame = Frame(self)
+        
+        OptMainFrame = Frame(self)
+        OptMainFrame.pack(side=TOP,padx=5)
+        
+        BtnFrame = Frame(self)
+        BtnFrame.pack(side=TOP, padx=5, fill=X)
+        btnRun = Button(BtnFrame, text="Run", width=6, command=self.close)
+        btnRun.pack(side=RIGHT,padx=10)
+                
+        searchOptFrame = Frame(OptMainFrame)
+        searchOptFrame.pack(side=RIGHT,padx=5)
+        searchOptLbl = Label(searchOptFrame, text = "Search options:")
+        searchOptLbl.pack(side=TOP, padx=5)
+        
+        for level in self.wdgts:
+            frame = Frame(searchOptFrame)
             frame.pack(pady=5,side=TOP,fill=X)
             label = Label(frame,text=level['label'])
             if level['input'] == 'entry':
@@ -52,18 +67,69 @@ class appDlg(Tk):
             label.pack(side=RIGHT,padx=5)
             level['wdgt'] = wdgt
 
-        self.bottomFrame = Frame(self)
-        self.bottomFrame.pack(pady=5,side=TOP,fill=X)
-        self.btnRun = Button(self.bottomFrame, text="Run", command=self.close)
-        self.btnRun.pack(side=RIGHT,padx=5)
+        siteOptFrame = Frame(OptMainFrame)
+        siteOptFrame.pack(side=RIGHT, padx=5)
+        siteOptLbl = Label(siteOptFrame, text = "eBay sites:")
+        siteOptLbl.pack(side=TOP, padx=5)
+        
+        siteOptCont = Frame(siteOptFrame)
+        siteOptCont.pack(side=TOP, padx=5)
+        
+        optsPerCol = 11
+        optionsList = globalSiteMap.keys()
+        optionsList.sort()
+        optionsMatrix = [optionsList[i:i+optsPerCol] for i in range(0,len(optionsList),optsPerCol)]
+        self.siteOpts = {}
+        
+        for col in optionsMatrix:
+            colFrame = Frame(siteOptCont)
+            colFrame.pack(side=LEFT, padx=5)
+            for opt in col:
+                frame = Frame(colFrame)
+                frame.pack(side=TOP, padx=5, fill=X)
+                label = Label(frame, text=globalSiteMap[opt]['name'])
+                var = StringVar()
+                wdgt = Checkbutton(frame, variable=var, 
+                                   onvalue=opt)
+                wdgt.pack(side=RIGHT, padx=5)
+                label.pack(side=RIGHT, padx=5)
+                self.siteOpts[opt] = { 'var' : var, 'wdgt' : wdgt }
+                
+        selectFrame = Frame(siteOptFrame)
+        selectFrame.pack(side=TOP, padx=5, fill=X)
+        selAllBtn = Button(selectFrame, text="Select all", command=self.selAll)
+        selAllBtn.pack(side=RIGHT, padx=5)
+        deSelBtn = Button(selectFrame, text="Clear all", command=self.selNone)
+        deSelBtn.pack(side=RIGHT, padx=5)
+        euSelBtn = Button(selectFrame, text="EU only", command=self.selEU)
+        euSelBtn.pack(side=RIGHT, padx=5)
         
 
     def outputDir(self):
         self.optionsDict['outputFolder'] = tkFileDialog.askdirectory()
+        
+        
+    def selAll(self):
+        for opt in self.siteOpts.keys():
+            self.siteOpts[opt]['wdgt'].select()
+    
+    
+    def selNone(self):
+        for opt in self.siteOpts.keys():
+            self.siteOpts[opt]['wdgt'].deselect()
+            
+            
+    def selEU(self):
+        for opt in self.siteOpts.keys():
+            if opt in ['FR', 'DE', 'NL', 'PL', 'CH', 'IT', 'AT', 'IE', 'ES', 
+                       'BE-FR', 'BE-NL', 'GB']:
+                self.siteOpts[opt]['wdgt'].select()
+            else:
+                self.siteOpts[opt]['wdgt'].deselect()
 
     
     def close(self):
-        for level in self.frames:
+        for level in self.wdgts:
             if level['input'] == 'entry' and level['wdgt'].get() != '':
                 self.optionsDict[level['appOpt']] = level['wdgt'].get()
             elif level['input'] == 'option':
@@ -71,6 +137,10 @@ class appDlg(Tk):
                     self.optionsDict[level['appOpt']] = True
                 else:
                     self.optionsDict[level['appOpt']] = False
+                    
+        for opt in self.siteOpts.keys():
+            if self.siteOpts[opt]['var'].get() != '0':
+                self.optionsDict['sites'].append(self.siteOpts[opt]['var'].get())
         self.destroy()
 
 

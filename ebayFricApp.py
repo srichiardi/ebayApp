@@ -6,21 +6,14 @@ import json
 import time
 from urllib import urlencode
 from ebayAppWidgets import appDlg
+from eBayGlobalMap import globalSiteMap
 
 def getItemsFromSeller(searchOptions):
 
     efPayload = { 'itemFilter(0).name' : 'Seller',
-                  'itemFilter(0).value' : searchOptions['sellerId'] }
-    
-    if 'totResults' in searchOptions.keys():
-        efPayload['paginationInput.entriesPerPage'] = searchOptions['totResults']
-    else:
-        efPayload['paginationInput.entriesPerPage'] = 100
-
-    if 'startFromPage' in searchOptions.keys():
-        efPayload['paginationInput.pageNumber'] = int(searchOptions['startFromPage'])
-    else:
-        efPayload['paginationInput.pageNumber'] = 1
+                  'itemFilter(0).value' : searchOptions['sellerId'],
+                  'paginationInput.entriesPerPage' : 100,
+                  'paginationInput.pageNumber' : 1 }
     
     if 'soldOnly' in searchOptions.keys():
         efPayload['SoldItemsOnly'] = searchOptions['soldOnly']
@@ -28,11 +21,20 @@ def getItemsFromSeller(searchOptions):
     if 'keywords' in searchOptions.keys():
         efPayload['keywords'] = searchOptions['keywords']
         
-    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?OPERATION-NAME=findItemsAdvanced&SERVICE-VERSION=1.13.0&SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&RESPONSE-DATA-FORMAT=JSON&REST-PAYLOAD&"
+    if len(searchOptions['sites']) == 0:
+        searchOptions['sites'].append('US')
+        
+    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?\
+    OPERATION-NAME=findItemsAdvanced&\
+    SERVICE-VERSION=1.13.0&\
+    SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&\
+    RESPONSE-DATA-FORMAT=JSON&\
+    REST-PAYLOAD&"
     
     url = ebayFindinghUrl + urlencode(efPayload)
     r = requests.get(url)
     j = json.loads(r.text)
+    
     totResults = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0])
     totPages = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalPages'][0])
     pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
@@ -68,7 +70,9 @@ def getNrOfSold(listOfItems):
                 'version' : '975',
                 'responseencoding' : 'JSON',
                 'ItemID' : asciiItemsStr,
-                'IncludeSelector' : 'Details'}
+                'IncludeSelector' : 'Details',
+                'siteid' : '0' }
+        
         url = ebayShoppingUrl + urlencode(esPayload)
         r = requests.get(url)
         j = json.loads(r.text)
@@ -120,3 +124,19 @@ def main():
 if __name__ == "__main__":
     main()
     
+##### TO DO #####
+'''
+Add Items Ended
+Map siteIDs to GlobalIDs in seller search and item search calls
+Add searches in Global eBay sites
+Add link to the listing
+Add picturesURL to output
+Add item location to output
+'''
+
+##### REFERENCES #####
+'''
+http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
+http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
+http://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html
+'''
