@@ -162,6 +162,7 @@ Map siteIDs to GlobalIDs in seller search and item search calls
 Add searches in Global eBay sites
 Add link to the listing DONE
 Add picturesURL to output DONE
+Implement check on nr of calls made and left
 '''
 
 ##### REFERENCES #####
@@ -170,4 +171,6 @@ http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
 http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
 http://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html
 http://developer.ebay.com/DevZone/shopping/docs/CallRef/GetMultipleItems.html
+URL = "http://access.alchemyapi.com/calls/info/GetAPIKeyInfo?apikey={}&outputMode=json".format(api_key)
+http://developer.ebay.com/DevZone/XML/docs/Reference/eBay/GetApiAccessRules.html?rmvSB=true
 '''
