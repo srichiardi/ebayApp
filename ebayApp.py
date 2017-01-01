@@ -169,4 +169,5 @@ Add picturesURL to output DONE
 http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
 http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
 http://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html
+http://developer.ebay.com/DevZone/shopping/docs/CallRef/GetMultipleItems.html
 '''
