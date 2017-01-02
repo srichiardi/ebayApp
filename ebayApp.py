@@ -24,7 +24,7 @@ def getItemsFromSeller(searchOptions):
     if len(searchOptions['sites']) == 0:
         searchOptions['sites'].append('US')
         
-    ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?\
+    findingUrlTmplt = "http://svcs.ebay.com/services/search/FindingService/v1?\
 OPERATION-NAME=findItemsAdvanced&\
 SERVICE-VERSION=1.13.0&\
 SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&\
@@ -35,11 +35,11 @@ REST-PAYLOAD&"
     itemsDict = {}
     
     for site in searchOptions['sites']:
-        ebayFindinghUrl = ebayFindinghUrl.format( globalSiteMap[site]['globalID'] )
+        ebayFindingUrl = findingUrlTmplt.format( globalSiteMap[site]['globalID'] )
         
         # pulling results from every page
         while True:
-            url = ebayFindinghUrl + urlencode(efPayload)
+            url = ebayFindingUrl + urlencode(efPayload)
             r = requests.get(url)
             j = json.loads(r.text)
             totPages = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalPages'][0])
@@ -116,9 +116,11 @@ def getNrOfSold(dictOfItems):
                 itemDict["Title"] = item["Title"]
                 itemDict["Quantity"] = item["Quantity"]
                 itemDict["Seller_id"] = item["Seller"]["UserID"]
-                itemDict["PictureURL"] = item["PictureURL"]
+                itemDict["PictureURL"] = ', '.join(item["PictureURL"])
                 itemDict["OriginalURL"] = item["ViewItemURLForNaturalSearch"]
                 itemDict["Sites"] = ', '.join(sitesByitem[ item["ItemID"] ])
+                itemDict["GlobalShipping"] = str(item["GlobalShipping"])
+                itemDict["ShipToLocations"] = ', '.join(item["ShipToLocations"])
                 itemsList.append(itemDict)
             
     return itemsList
