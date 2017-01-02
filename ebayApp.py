@@ -9,11 +9,12 @@ from modules.ebayAppWidgets import appDlg
 from modules.eBayGlobalMap import globalSiteMap
 
 def getItemsFromSeller(searchOptions):
+    
+    nrOfCalls = 0
 
     efPayload = { 'itemFilter(0).name' : 'Seller',
                   'itemFilter(0).value' : searchOptions['sellerId'],
-                  'paginationInput.entriesPerPage' : 100,
-                  'paginationInput.pageNumber' : 1 }
+                  'paginationInput.entriesPerPage' : 100 }
     
     if 'soldOnly' in searchOptions.keys():
         efPayload['SoldItemsOnly'] = searchOptions['soldOnly']
@@ -36,6 +37,7 @@ REST-PAYLOAD&"
     
     for site in searchOptions['sites']:
         ebayFindingUrl = findingUrlTmplt.format( globalSiteMap[site]['globalID'] )
+        efPayload['paginationInput.pageNumber'] = 1
         
         # pulling results from every page
         while True:
@@ -46,13 +48,16 @@ REST-PAYLOAD&"
             pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
             totResults = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0])
             
+            nrOfCalls += 1
+            
             # break while loop if there are no results in the current site
             if totResults == 0: break
             
             # save item id in a dictionary key = item, value = list of sites
             for item in j['findItemsAdvancedResponse'][0]['searchResult'][0]['item']:
                 try:
-                    itemsDict[ item['itemId'][0] ].append(site)
+                    if site not in itemsDict[ item['itemId'][0] ]:
+                        itemsDict[ item['itemId'][0] ].append(site)
                 except KeyError:
                     itemsDict[ item['itemId'][0] ] = [site]
                     
@@ -60,11 +65,15 @@ REST-PAYLOAD&"
             if totPages == pageNr: break
             
             efPayload['paginationInput.pageNumber'] += 1
-            
+    
+    print "findItemsAdvanced API made %d calls" % nrOfCalls
+    
     return itemsDict
 
 
 def getNrOfSold(dictOfItems):
+    
+    nrOfCalls = 0
     
     itemsBySite = {}
     sitesByitem = {}
@@ -105,6 +114,8 @@ def getNrOfSold(dictOfItems):
             r = requests.get(url)
             j = json.loads(r.text)
             
+            nrOfCalls += 1
+            
             for item in j['Item']:
                 itemDict = {}
                 itemDict["Item_id"] = item["ItemID"]
@@ -122,19 +133,21 @@ def getNrOfSold(dictOfItems):
                 itemDict["GlobalShipping"] = str(item["GlobalShipping"])
                 itemDict["ShipToLocations"] = ', '.join(item["ShipToLocations"])
                 itemsList.append(itemDict)
+    
+    print "GetMultipleItems API made %d calls" % nrOfCalls
             
     return itemsList
 
 
 def writeItemsToCsv(outputPath, itemsList):
-    filePath = outputPath + "/eBayItemDetails_%s.csv" % time.strftime("%Y%m%d-%H%M%S")
+    filePath = outputPath + "/eBayItems_%s.csv" % time.strftime("%Y%m%d-%H%M%S")
     fileToWrite = open(filePath, 'ab')
     fieldnames = itemsList[0].keys()
     csvWriter = csv.DictWriter(fileToWrite, fieldnames, restval='',
                                extrasaction='ignore', dialect='excel')
     csvWriter.writeheader()
     for item in itemsList:
-        csvWriter.writerow(item)
+        csvWriter.writerow({key : unicode(item[key]).encode("utf-8") for key in item.keys()})
     fileToWrite.close()
 
 
@@ -146,10 +159,13 @@ def main():
         time.sleep(3)
         sys.exit()
     else:
-        itemsList = getItemsFromSeller(options)
-        itemsDesc = getNrOfSold(itemsList)
+        dictOfItems = getItemsFromSeller(options)
+        print "found %d items" % len(dictOfItems.keys())
+        itemsDesc = getNrOfSold(dictOfItems)
         if len(itemsDesc) > 0:
             writeItemsToCsv(options['outputFolder'], itemsDesc)
+            print "process completed"
+            time.sleep(1)
         else:
             print "no items found"
             time.sleep(3)
@@ -161,11 +177,12 @@ if __name__ == "__main__":
 ##### TO DO #####
 '''
 Add Items Ended
-Map siteIDs to GlobalIDs in seller search and item search calls
-Add searches in Global eBay sites
+Map siteIDs to GlobalIDs in seller search and item search calls DONE
+Add searches in Global eBay sites DONE
 Add link to the listing DONE
 Add picturesURL to output DONE
 Implement check on nr of calls made and left
+Implement country prioritization when same item listed on multiple sites (cases?)
 '''
 
 ##### REFERENCES #####
@@ -174,6 +191,5 @@ http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
 http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
 http://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html
 http://developer.ebay.com/DevZone/shopping/docs/CallRef/GetMultipleItems.html
-URL = "http://access.alchemyapi.com/calls/info/GetAPIKeyInfo?apikey={}&outputMode=json".format(api_key)
 http://developer.ebay.com/DevZone/XML/docs/Reference/eBay/GetApiAccessRules.html?rmvSB=true
 '''
