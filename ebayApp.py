@@ -5,8 +5,8 @@ import requests
 import json
 import time
 from urllib import urlencode
-from ebayAppWidgets import appDlg
-from eBayGlobalMap import globalSiteMap
+from modules.ebayAppWidgets import appDlg
+from modules.eBayGlobalMap import globalSiteMap
 
 def getItemsFromSeller(searchOptions):
 
@@ -25,16 +25,17 @@ def getItemsFromSeller(searchOptions):
         searchOptions['sites'].append('US')
         
     ebayFindinghUrl = "http://svcs.ebay.co.uk/services/search/FindingService/v1?\
-    OPERATION-NAME=findItemsAdvanced&\
-    SERVICE-VERSION=1.13.0&\
-    SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&\
-    RESPONSE-DATA-FORMAT=JSON&\
-    REST-PAYLOAD&"
+OPERATION-NAME=findItemsAdvanced&\
+SERVICE-VERSION=1.13.0&\
+SECURITY-APPNAME=StefanoR-ebayFric-PRD-19f17700d-ff298548&\
+RESPONSE-DATA-FORMAT=JSON&\
+GLOBAL-ID={}&\
+REST-PAYLOAD&"
     
     itemsDict = {}
     
     for site in searchOptions['sites']:
-        ebayFindinghUrl += globalSiteMap[site]['globalID'] + "&"
+        ebayFindinghUrl = ebayFindinghUrl.format( globalSiteMap[site]['globalID'] )
         
         # pulling results from every page
         while True:
@@ -51,9 +52,9 @@ def getItemsFromSeller(searchOptions):
             # save item id in a dictionary key = item, value = list of sites
             for item in j['findItemsAdvancedResponse'][0]['searchResult'][0]['item']:
                 try:
-                    itemsDict[item].append(site)
+                    itemsDict[ item['itemId'][0] ].append(site)
                 except KeyError:
-                    itemsDict[item] = [site]
+                    itemsDict[ item['itemId'][0] ] = [site]
                     
             # break while loop if reached last page
             if totPages == pageNr: break
@@ -117,7 +118,7 @@ def getNrOfSold(dictOfItems):
                 itemDict["Seller_id"] = item["Seller"]["UserID"]
                 itemDict["PictureURL"] = item["PictureURL"]
                 itemDict["OriginalURL"] = item["ViewItemURLForNaturalSearch"]
-                itemDict["Sites"] = ', '.join(sitesByitem[item])
+                itemDict["Sites"] = ', '.join(sitesByitem[ item["ItemID"] ])
                 itemsList.append(itemDict)
             
     return itemsList
