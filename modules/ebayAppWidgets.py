@@ -14,7 +14,7 @@ class appDlg(Tk):
         Tk.__init__(self)
         self.title("eBay App Search")
         self.geometry("750x375")
-        rootDir = os.path.split(__file__)[0]
+        rootDir = os.path.split(os.path.split(__file__)[0])[0] # default output folder in parent dir
         self.optionsDict = { 'outputFolder' : rootDir,
                             'sites' : [] }
         
@@ -45,7 +45,8 @@ class appDlg(Tk):
         BtnFrame.pack(side=TOP, padx=5, fill=X)
         btnRun = Button(BtnFrame, text="Run", width=6, command=self.close)
         btnRun.pack(side=RIGHT,padx=10)
-                
+        
+        # right frame for search options
         searchOptFrame = Frame(OptMainFrame)
         searchOptFrame.pack(side=RIGHT,padx=5)
         searchOptLbl = Label(searchOptFrame, text = "Search options:")
@@ -66,7 +67,8 @@ class appDlg(Tk):
             wdgt.pack(side=RIGHT,padx=5)
             label.pack(side=RIGHT,padx=5)
             level['wdgt'] = wdgt
-
+        
+        # left frame with site options
         siteOptFrame = Frame(OptMainFrame)
         siteOptFrame.pack(side=RIGHT, padx=5)
         siteOptLbl = Label(siteOptFrame, text = "eBay sites:")
@@ -75,7 +77,7 @@ class appDlg(Tk):
         siteOptCont = Frame(siteOptFrame)
         siteOptCont.pack(side=TOP, padx=5)
         
-        optsPerCol = 11
+        optsPerCol = 11 # 11 options per column
         optionsList = globalSiteMap.keys()
         optionsList.sort()
         optionsMatrix = [optionsList[i:i+optsPerCol] for i in range(0,len(optionsList),optsPerCol)]
@@ -93,6 +95,7 @@ class appDlg(Tk):
                                    onvalue=opt)
                 wdgt.pack(side=RIGHT, padx=5)
                 label.pack(side=RIGHT, padx=5)
+                wdgt.deselect() # disabled by default
                 self.siteOpts[opt] = { 'var' : var, 'wdgt' : wdgt }
                 
         selectFrame = Frame(siteOptFrame)
