@@ -139,8 +139,8 @@ def getNrOfSold(dictOfItems):
     return itemsList
 
 
-def writeItemsToCsv(outputPath, itemsList):
-    filePath = outputPath + "/eBayItems_%s.csv" % time.strftime("%Y%m%d-%H%M%S")
+def writeItemsToCsv(outputPath, sellerId, itemsList):
+    filePath = outputPath + "/%s_eBayItems_%s.csv" % (sellerId, time.strftime("%Y%m%d-%H%M%S"))
     fileToWrite = open(filePath, 'ab')
     fieldnames = itemsList[0].keys()
     csvWriter = csv.DictWriter(fileToWrite, fieldnames, restval='',
@@ -163,7 +163,7 @@ def main():
         print "found %d items" % len(dictOfItems.keys())
         itemsDesc = getNrOfSold(dictOfItems)
         if len(itemsDesc) > 0:
-            writeItemsToCsv(options['outputFolder'], itemsDesc)
+            writeItemsToCsv(options['outputFolder'], options['sellerId'], itemsDesc)
             print "process completed"
             time.sleep(1)
         else:
