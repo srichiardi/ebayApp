@@ -177,14 +177,11 @@ if __name__ == "__main__":
 ##### TO DO #####
 '''
 Add Items Ended
-Map siteIDs to GlobalIDs in seller search and item search calls DONE
-Add searches in Global eBay sites DONE
-Add link to the listing DONE
-Add picturesURL to output DONE
 Implement check on nr of calls made and left
 Implement country prioritization when same item listed on multiple sites (cases?)
 Verify if same item appears multiple times in the same site search
 Implement seller stats
+Read error messages from calls reply
 '''
 
 ##### REFERENCES #####
