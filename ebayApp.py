@@ -183,12 +183,14 @@ Add link to the listing DONE
 Add picturesURL to output DONE
 Implement check on nr of calls made and left
 Implement country prioritization when same item listed on multiple sites (cases?)
+Verify if same item appears multiple times in the same site search
+Implement seller stats
 '''
 
 ##### REFERENCES #####
 '''
 http://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
-http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
+http://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html
 http://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html
 http://developer.ebay.com/DevZone/shopping/docs/CallRef/GetMultipleItems.html
 http://developer.ebay.com/DevZone/XML/docs/Reference/eBay/GetApiAccessRules.html?rmvSB=true
