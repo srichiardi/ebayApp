@@ -176,12 +176,13 @@ if __name__ == "__main__":
     
 ##### TO DO #####
 '''
-Add Items Ended
+Read error messages from calls reply
+Log errors
+Add Items Ended -- looks like it's not supported by eBay API
 Implement check on nr of calls made and left
 Implement country prioritization when same item listed on multiple sites (cases?)
 Verify if same item appears multiple times in the same site search
 Implement seller stats
-Read error messages from calls reply
 '''
 
 ##### REFERENCES #####
