@@ -12,8 +12,8 @@ class appDlg(Tk):
 
     def __init__(self):
         Tk.__init__(self)
-        self.title("eBay App Search")
-        self.geometry("750x375")
+        self.title("ELA (eBay Listing App)")
+        self.geometry("655x315")
         rootDir = os.path.split(os.path.split(__file__)[0])[0] # default output folder in parent dir
         self.optionsDict = { 'outputFolder' : rootDir,
                             'sites' : [] }
@@ -21,12 +21,6 @@ class appDlg(Tk):
         self.wdgts = [{ 'label' : 'Seller ID',
                          'input' : 'entry',
                          'appOpt' : 'sellerId' },
-                        { 'label' : 'Results per page',
-                          'input' : 'entry',
-                          'appOpt' : 'totResults' },
-                        { 'label' : 'Start from page',
-                          'input' : 'entry',
-                          'appOpt' : 'startFromPage' },
                         { 'label' : 'Sold items only',
                           'input' : 'option',
                           'appOpt' : 'soldOnly' },
@@ -57,7 +51,7 @@ class appDlg(Tk):
             frame.pack(pady=5,side=TOP,fill=X)
             label = Label(frame,text=level['label'])
             if level['input'] == 'entry':
-                wdgt = Entry(frame,width=50)
+                wdgt = Entry(frame,width=30)
             elif level['input'] == 'option':
                 var = IntVar()
                 wdgt = Checkbutton(frame, variable=var)
