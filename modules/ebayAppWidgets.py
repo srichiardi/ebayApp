@@ -13,7 +13,7 @@ class appDlg(Tk):
     def __init__(self):
         Tk.__init__(self)
         self.title("ELA (eBay Listing App)")
-        self.geometry("655x315")
+        self.geometry("655x320")
         rootDir = os.path.split(os.path.split(__file__)[0])[0] # default output folder in parent dir
         self.optionsDict = { 'outputFolder' : rootDir,
                             'sites' : [] }
