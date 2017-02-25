@@ -183,11 +183,9 @@ Implement check on nr of calls made and left
 Implement country prioritization when same item listed on multiple sites (cases?)
 Verify if same item appears multiple times in the same site search
 Implement seller stats
-<<<<<<< HEAD
 Read error messages from calls reply
 Implement status bar and text feedback.
-=======
->>>>>>> refs/remotes/origin/master
+
 '''
 
 ##### REFERENCES #####
