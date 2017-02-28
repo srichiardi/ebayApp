@@ -112,7 +112,8 @@ def getNrOfSold(dictOfItems):
             
             url = ebayShoppingUrl + urlencode(esPayload)
             r = requests.get(url)
-            j = json.loads(r.text)
+            j = json.loads(r.text.decode('utf-8'))
+            # j = json.loads(r.text)
             
             nrOfCalls += 1
             
@@ -147,7 +148,8 @@ def writeItemsToCsv(outputPath, sellerId, itemsList):
                                extrasaction='ignore', dialect='excel')
     csvWriter.writeheader()
     for item in itemsList:
-        csvWriter.writerow({key : unicode(item[key]).encode("utf-8") for key in item.keys()})
+        # csvWriter.writerow({key : unicode(item[key]).encode("utf-8") for key in item.keys()})
+        csvWriter.writerow({key : item[key].encode("utf-8") for key in item.keys()})
     fileToWrite.close()
 
 
