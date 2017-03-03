@@ -141,7 +141,11 @@ def getNrOfSold(dictOfItems):
 
 
 def writeItemsToCsv(outputPath, sellerId, itemsList):
-    filePath = outputPath + "/%s_eBayItems_%s.csv" % (sellerId, time.strftime("%Y%m%d-%H%M%S"))
+    
+    # sanitizing sellerId to avoid issues with illegal file names
+    sntzd_seller_id = re.sub('[^A-Za-z0-9-_]+', '', sellerId)
+    
+    filePath = outputPath + "/%s_eBayItems_%s.csv" % (sntzd_seller_id, time.strftime("%Y%m%d-%H%M%S"))
     fileToWrite = open(filePath, 'ab')
     fieldnames = itemsList[0].keys()
     csvWriter = csv.DictWriter(fileToWrite, fieldnames, restval='',
