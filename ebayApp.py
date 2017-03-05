@@ -4,6 +4,7 @@ import csv
 import requests
 import json
 import time
+import re
 from urllib import urlencode
 from modules.ebayAppWidgets import appDlg
 from modules.eBayGlobalMap import globalSiteMap
