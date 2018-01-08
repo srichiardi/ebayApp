@@ -13,9 +13,11 @@ def getItemsFromSeller(searchOptions):
     
     nrOfCalls = 0
 
-    efPayload = { 'itemFilter(0).name' : 'Seller',
-                  'itemFilter(0).value' : searchOptions['sellerId'],
-                  'paginationInput.entriesPerPage' : 100 }
+    efPayload = { 'paginationInput.entriesPerPage' : 100 }
+    
+    if 'sellerId' in searchOptions.keys():
+        efPayload['itemFilter(0).name'] = 'Seller'
+        efPayload['itemFilter(0).value'] = searchOptions['sellerId']
     
     if 'soldOnly' in searchOptions.keys():
         efPayload['SoldItemsOnly'] = searchOptions['soldOnly']
@@ -161,21 +163,20 @@ def writeItemsToCsv(outputPath, sellerId, itemsList):
 def main():
     print "Claudio sei un FRICO!!!"
     options = appDlg().mainloop()
-    if 'sellerId' not in options.keys():
-        print "missing seller ID!"
-        time.sleep(3)
-        sys.exit()
-    else:
-        dictOfItems = getItemsFromSeller(options)
-        print "found %d items" % len(dictOfItems.keys())
-        itemsDesc = getNrOfSold(dictOfItems)
-        if len(itemsDesc) > 0:
+
+    dictOfItems = getItemsFromSeller(options)
+    print "found %d items" % len(dictOfItems.keys())
+    itemsDesc = getNrOfSold(dictOfItems)
+    if len(itemsDesc) > 0:
+        if 'sellerId' in options.keys():
             writeItemsToCsv(options['outputFolder'], options['sellerId'], itemsDesc)
-            print "process completed"
-            time.sleep(1)
         else:
-            print "no items found"
-            time.sleep(3)
+            writeItemsToCsv(options['outputFolder'], 'eBayAppSearch', itemsDesc)
+        print "process completed"
+        time.sleep(1)
+    else:
+        print "no items found"
+        time.sleep(3)
 
 
 if __name__ == "__main__":
