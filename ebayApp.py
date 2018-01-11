@@ -15,18 +15,26 @@ def getItemsFromSeller(searchOptions):
 
     efPayload = { 'paginationInput.entriesPerPage' : 100 }
     
+    i = 0
+    
     if 'sellerId' in searchOptions.keys():
-        efPayload['itemFilter(0).name'] = 'Seller'
-        efPayload['itemFilter(0).value'] = searchOptions['sellerId']
+        efPayload['itemFilter({}).name'.format(i)] = 'Seller'
+        efPayload['itemFilter({}).value'.format(i)] = searchOptions['sellerId']
+        i += 1
     
     if 'soldOnly' in searchOptions.keys():
-        efPayload['SoldItemsOnly'] = searchOptions['soldOnly']
+        efPayload['itemFilter({}).name'.format(i)] = 'SoldItemsOnly'
+        efPayload['itemFilter({}).value'.format(i)] = searchOptions['soldOnly']
+        i += 1
 
     if 'keywords' in searchOptions.keys():
         efPayload['keywords'] = searchOptions['keywords']
         
     if len(searchOptions['sites']) == 0:
         searchOptions['sites'].append('US')
+        
+    if 'descriptionSearch' in searchOptions.keys():
+        efPayload['descriptionSearch'] = searchOptions['descriptionSearch']
         
     findingUrlTmplt = "http://svcs.ebay.com/services/search/FindingService/v1?\
 OPERATION-NAME=findItemsAdvanced&\
