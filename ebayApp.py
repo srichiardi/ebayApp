@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import re
+from collections import OrderedDict
 from urllib import urlencode
 from modules.ebayAppWidgets import appDlg
 from modules.eBayGlobalMap import globalSiteMap
@@ -20,11 +21,6 @@ def getItemsFromSeller(searchOptions):
     if 'sellerId' in searchOptions.keys():
         efPayload['itemFilter({}).name'.format(i)] = 'Seller'
         efPayload['itemFilter({}).value'.format(i)] = searchOptions['sellerId']
-        i += 1
-    
-    if 'soldOnly' in searchOptions.keys():
-        efPayload['itemFilter({}).name'.format(i)] = 'SoldItemsOnly'
-        efPayload['itemFilter({}).value'.format(i)] = searchOptions['soldOnly']
         i += 1
 
     if 'keywords' in searchOptions.keys():
@@ -129,21 +125,33 @@ def getNrOfSold(dictOfItems):
             nrOfCalls += 1
             
             for item in j['Item']:
-                itemDict = {}
+                itemDict = OrderedDict()
+                itemDict["Seller_id"] = item["Seller"]["UserID"]
                 itemDict["Item_id"] = item["ItemID"]
                 itemDict["ListingStatus"] = item["ListingStatus"]
                 itemDict["Location"] = item["Location"]
+                itemDict["Quantity"] = item["Quantity"]
+                itemDict["Quantity_sold"] = item["QuantitySold"]
                 itemDict["Price"] = item["CurrentPrice"]["Value"]
                 itemDict["Currency"] = item["CurrentPrice"]["CurrencyID"]
-                itemDict["Quantity_sold"] = item["QuantitySold"]
                 itemDict["Title"] = item["Title"]
-                itemDict["Quantity"] = item["Quantity"]
-                itemDict["Seller_id"] = item["Seller"]["UserID"]
                 itemDict["PictureURL"] = ', '.join(item["PictureURL"])
                 itemDict["OriginalURL"] = item["ViewItemURLForNaturalSearch"]
                 itemDict["Sites"] = ', '.join(sitesByitem[ item["ItemID"] ])
                 itemDict["GlobalShipping"] = str(item["GlobalShipping"])
                 itemDict["ShipToLocations"] = ', '.join(item["ShipToLocations"])
+                for key in ["Street1", "CityName", "StateOrProvince", "CountryName", "Phone", "PostalCode",
+                            "CompanyName", "FirstName", "LastName"]:
+                    try:
+                        itemDict[key] = item["BusinessSellerDetails"]["Address"][key]
+                    except KeyError:
+                        itemDict[key] = ""
+                for key in ["Email", "LegalInvoice"]:
+                    try:
+                        itemDict[key] = item["BusinessSellerDetails"][key]
+                    except KeyError:
+                        itemDict[key] = ""
+
                 itemsList.append(itemDict)
     
     print "GetMultipleItems API made %d calls" % nrOfCalls

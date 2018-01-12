@@ -21,9 +21,6 @@ class appDlg(Tk):
         self.wdgts = [{ 'label' : 'Seller ID',
                          'input' : 'entry',
                          'appOpt' : 'sellerId' },
-                        { 'label' : 'Sold items only',
-                          'input' : 'option',
-                          'appOpt' : 'soldOnly' },
                         { 'label' : 'Search description',
                           'input' : 'option',
                           'appOpt' : 'descriptionSearch' },
@@ -134,9 +131,9 @@ class appDlg(Tk):
                 self.optionsDict[level['appOpt']] = level['wdgt'].get()
             elif level['input'] == 'option':
                 if level['var'].get() == 1:
-                    self.optionsDict[level['appOpt']] = True
+                    self.optionsDict[level['appOpt']] = 'true'
                 else:
-                    self.optionsDict[level['appOpt']] = False
+                    self.optionsDict[level['appOpt']] = 'false'
                     
         for opt in self.siteOpts.keys():
             if self.siteOpts[opt]['var'].get() != '0':
