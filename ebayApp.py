@@ -146,9 +146,14 @@ def getNrOfSold(dictOfItems):
                         itemDict[key] = item["BusinessSellerDetails"]["Address"][key]
                     except KeyError:
                         itemDict[key] = ""
-                for key in ["Email", "LegalInvoice"]:
+                for key in ["Email", "LegalInvoice", "TradeRegistrationNumber"]:
                     try:
                         itemDict[key] = item["BusinessSellerDetails"][key]
+                    except KeyError:
+                        itemDict[key] = ""
+                for key in ["VATID", "VATPercent", "VATSite"]:
+                    try:
+                        itemDict[key] = item["BusinessSellerDetails"]["VATDetails"][key]
                     except KeyError:
                         itemDict[key] = ""
 
