@@ -21,10 +21,15 @@ def json_flat(json_obj):
             for k, v in value.items():
                 flatten(v, k)
         
-        # for lists of values, the function returns the first int or str of the list 
+        # for lists of values, the function returns a string with all values
+        # assuming that json doesn't have list of lists, nested lists, the 
+        # function doesn't check for those. 
         elif isinstance(value, list):
-            for i, v in enumerate(value[::-1]):
-                flatten(v, key)
+            if len(value) > 0 and isinstance(value[0], dict):
+                for v in value:
+                    flatten(v)
+            else:
+                flat_data[key] = ", ".join(value)
         
         else:
             flat_data[key] = value
@@ -149,36 +154,49 @@ def getNrOfSold(dictOfItems):
             
             for item in j['Item']:
                 itemDict = OrderedDict()
-                itemDict["Seller_id"] = item["Seller"]["UserID"]
-                itemDict["Item_id"] = item["ItemID"]
-                itemDict["ListingStatus"] = item["ListingStatus"]
-                itemDict["Location"] = item["Location"]
-                itemDict["Quantity"] = item["Quantity"]
-                itemDict["Quantity_sold"] = item["QuantitySold"]
-                itemDict["Price"] = item["CurrentPrice"]["Value"]
-                itemDict["Currency"] = item["CurrentPrice"]["CurrencyID"]
-                itemDict["Title"] = item["Title"]
-                itemDict["PictureURL"] = ', '.join(item["PictureURL"])
-                itemDict["OriginalURL"] = item["ViewItemURLForNaturalSearch"]
-                itemDict["Sites"] = ', '.join(sitesByitem[ item["ItemID"] ])
-                itemDict["GlobalShipping"] = str(item["GlobalShipping"])
-                itemDict["ShipToLocations"] = ', '.join(item["ShipToLocations"])
-                for key in ["Name", "Street1", "Street2", "CityName", "StateOrProvince", "CountryName",
-                             "Phone", "PostalCode", "CompanyName", "FirstName", "LastName"]:
+                flat_item = json_flat(item)
+                for key in ["UserID", "ItemID", "ListingStatus", "Location", "Quantity", "QuantitySold", "Value",
+                            "CurrencyID", "Title", "PictureURL", "ViewItemURLForNaturalSearch", "GlobalShipping",
+                            "ShipToLocations", "Name", "Street1", "Street2", "CityName", "StateOrProvince", "CountryName",
+                            "Phone", "PostalCode", "CompanyName", "FirstName", "LastName", "Email", "LegalInvoice",
+                            "TradeRegistrationNumber", "VATID", "VATPercent", "VATSite"]:
                     try:
-                        itemDict[key] = item["BusinessSellerDetails"]["Address"][key]
+                        itemDict[key] = flat_item[key]
                     except KeyError:
                         itemDict[key] = ""
-                for key in ["Email", "LegalInvoice", "TradeRegistrationNumber"]:
-                    try:
-                        itemDict[key] = item["BusinessSellerDetails"][key]
-                    except KeyError:
-                        itemDict[key] = ""
-                for key in ["VATID", "VATPercent", "VATSite"]:
-                    try:
-                        itemDict[key] = item["BusinessSellerDetails"]["VATDetails"][key]
-                    except KeyError:
-                        itemDict[key] = ""
+                # making sure the Value is from the Current price and not from StartPrice
+                itemDict["Value"] = item["CurrentPrice"]["Value"]
+                itemDict["CurrencyID"] = item["CurrentPrice"]["CurrencyID"]
+#                 itemDict["Seller_id"] = item["Seller"]["UserID"]
+#                 itemDict["Item_id"] = item["ItemID"]
+#                 itemDict["ListingStatus"] = item["ListingStatus"]
+#                 itemDict["Location"] = item["Location"]
+#                 itemDict["Quantity"] = item["Quantity"]
+#                 itemDict["Quantity_sold"] = item["QuantitySold"]
+#                 itemDict["Price"] = item["CurrentPrice"]["Value"]
+#                 itemDict["Currency"] = item["CurrentPrice"]["CurrencyID"]
+#                 itemDict["Title"] = item["Title"]
+#                 itemDict["PictureURL"] = ', '.join(item["PictureURL"])
+#                 itemDict["OriginalURL"] = item["ViewItemURLForNaturalSearch"]
+#                 itemDict["Sites"] = ', '.join(sitesByitem[ item["ItemID"] ])
+#                 itemDict["GlobalShipping"] = str(item["GlobalShipping"])
+#                 itemDict["ShipToLocations"] = ', '.join(item["ShipToLocations"])
+#                 for key in ["Name", "Street1", "Street2", "CityName", "StateOrProvince", "CountryName",
+#                              "Phone", "PostalCode", "CompanyName", "FirstName", "LastName"]:
+#                     try:
+#                         itemDict[key] = item["BusinessSellerDetails"]["Address"][key]
+#                     except KeyError:
+#                         itemDict[key] = ""
+#                 for key in ["Email", "LegalInvoice", "TradeRegistrationNumber"]:
+#                     try:
+#                         itemDict[key] = item["BusinessSellerDetails"][key]
+#                     except KeyError:
+#                         itemDict[key] = ""
+#                 for key in ["VATID", "VATPercent", "VATSite"]:
+#                     try:
+#                         itemDict[key] = item["BusinessSellerDetails"]["VATDetails"][key]
+#                     except KeyError:
+#                         itemDict[key] = ""
 
                 itemsList.append(itemDict)
     
@@ -240,8 +258,8 @@ def main():
     # extract seller ids
     sellers_list = []
     for record in itemsDesc:
-        if record["Seller_id"] not in sellers_list:
-            sellers_list.append(record["Seller_id"])
+        if record["UserID"] not in sellers_list:
+            sellers_list.append(record["UserID"])
     
     sellers_details = get_seller_details(sellers_list)
     
@@ -249,7 +267,7 @@ def main():
     for item in itemsDesc:
         for key in ["FeedbackScore", "PositiveFeedbackPercent", "UniqueNegativeFeedbackCount",
                     "UniqueNeutralFeedbackCount", "UniquePositiveFeedbackCount"]:
-            item[key] = sellers_details[item["Seller_id"]][key]
+            item[key] = sellers_details[item["UserID"]][key]
     
     if len(itemsDesc) > 0:
         if 'sellerId' in options.keys():
