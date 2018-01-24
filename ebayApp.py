@@ -10,6 +10,29 @@ from urllib import urlencode
 from modules.ebayAppWidgets import appDlg
 from modules.eBayGlobalMap import globalSiteMap
 
+
+def json_flat(json_obj):
+    assert isinstance(json_obj, dict), "input is not a dictionary"
+    flat_data = {}
+    
+    def flatten(value, key=""):
+        # for nested dictionaries, the function returns the most inner key value pair
+        if isinstance(value, dict):
+            for k, v in value.items():
+                flatten(v, k)
+        
+        # for lists of values, the function returns the first int or str of the list 
+        elif isinstance(value, list):
+            for i, v in enumerate(value[::-1]):
+                flatten(v, key)
+        
+        else:
+            flat_data[key] = value
+            
+    flatten(json_obj)
+    return flat_data
+
+
 def getItemsFromSeller(searchOptions):
     
     nrOfCalls = 0
@@ -140,8 +163,8 @@ def getNrOfSold(dictOfItems):
                 itemDict["Sites"] = ', '.join(sitesByitem[ item["ItemID"] ])
                 itemDict["GlobalShipping"] = str(item["GlobalShipping"])
                 itemDict["ShipToLocations"] = ', '.join(item["ShipToLocations"])
-                for key in ["Street1", "CityName", "StateOrProvince", "CountryName", "Phone", "PostalCode",
-                            "CompanyName", "FirstName", "LastName"]:
+                for key in ["Name", "Street1", "Street2", "CityName", "StateOrProvince", "CountryName",
+                             "Phone", "PostalCode", "CompanyName", "FirstName", "LastName"]:
                     try:
                         itemDict[key] = item["BusinessSellerDetails"]["Address"][key]
                     except KeyError:
@@ -162,6 +185,31 @@ def getNrOfSold(dictOfItems):
     print "GetMultipleItems API made %d calls" % nrOfCalls
             
     return itemsList
+
+
+def get_seller_details(sellers_list):
+    url_templ = "http://open.api.ebay.com/shopping?\
+callname=GetUserProfile&\
+responseencoding=JSON&\
+appid=StefanoR-ebayFric-PRD-19f17700d-ff298548&\
+version=967&\
+IncludeSelector=FeedbackHistory&\
+UserID={}"
+    sellers_dict = {}
+    for seller_id in sellers_list:
+        url = url_templ.format(seller_id)
+        r = requests.get(url)
+        j = json.loads(r.text)
+        flat_j = json_flat(j)
+        sellers_dict[seller_id] = {}
+        for key in ["FeedbackScore", "PositiveFeedbackPercent", "UniqueNegativeFeedbackCount",
+                    "UniqueNeutralFeedbackCount", "UniquePositiveFeedbackCount"]:
+            try:
+                sellers_dict[seller_id][key] = flat_j[key]
+            except KeyError:
+                sellers_dict[seller_id][key] = ""
+    
+    return sellers_dict
 
 
 def writeItemsToCsv(outputPath, sellerId, itemsList):
@@ -188,6 +236,21 @@ def main():
     dictOfItems = getItemsFromSeller(options)
     print "found %d items" % len(dictOfItems.keys())
     itemsDesc = getNrOfSold(dictOfItems)
+    
+    # extract seller ids
+    sellers_list = []
+    for record in itemsDesc:
+        if record["Seller_id"] not in sellers_list:
+            sellers_list.append(record["Seller_id"])
+    
+    sellers_details = get_seller_details(sellers_list)
+    
+    # merge listings and seller details
+    for item in itemsDesc:
+        for key in ["FeedbackScore", "PositiveFeedbackPercent", "UniqueNegativeFeedbackCount",
+                    "UniqueNeutralFeedbackCount", "UniquePositiveFeedbackCount"]:
+            item[key] = sellers_details[item["Seller_id"]][key]
+    
     if len(itemsDesc) > 0:
         if 'sellerId' in options.keys():
             writeItemsToCsv(options['outputFolder'], options['sellerId'], itemsDesc)
