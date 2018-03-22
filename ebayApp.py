@@ -82,6 +82,7 @@ REST-PAYLOAD&"
             totPages = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalPages'][0])
             pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
             totResults = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0])
+            print("page: {} -- tot pages: {} -- tot items: {}".format(pageNr, totPages, totResults))
             
             nrOfCalls += 1
             
@@ -97,7 +98,7 @@ REST-PAYLOAD&"
                     itemsDict[ item['itemId'][0] ] = [site]
                     
             # break while loop if reached last page
-            if totPages == pageNr: break
+            if totPages == pageNr or pageNr == 100: break
             
             efPayload['paginationInput.pageNumber'] += 1
     
