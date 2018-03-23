@@ -82,7 +82,6 @@ REST-PAYLOAD&"
             totPages = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalPages'][0])
             pageNr = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0])
             totResults = int(j['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0])
-            print("page: {} -- tot pages: {} -- tot items: {}".format(pageNr, totPages, totResults))
             
             nrOfCalls += 1
             
@@ -168,7 +167,7 @@ def getNrOfSold(dictOfItems):
                 # making sure the Value is from the Current price and not from StartPrice
                 itemDict["Value"] = item["CurrentPrice"]["Value"]
                 itemDict["CurrencyID"] = item["CurrentPrice"]["CurrencyID"]
-#                 itemDict["Seller_id"] = item["Seller"]["UserID"]
+                itemDict["UserID"] = item["Seller"]["UserID"]
 #                 itemDict["Item_id"] = item["ItemID"]
 #                 itemDict["ListingStatus"] = item["ListingStatus"]
 #                 itemDict["Location"] = item["Location"]
